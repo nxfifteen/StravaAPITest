@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.support.customtabs.CustomTabsIntent;
+import android.util.Log;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -19,11 +20,15 @@ import java.util.concurrent.ExecutionException;
 public class NxStravaHelper {
 
     @SuppressWarnings("FieldCanBeLocal")
-    private String clientid = "xxxx";
+    private String clientid = "xxx";
     @SuppressWarnings("FieldCanBeLocal")
-    private String clientSecret = "xxxxxx";
+    private String clientSecret = "xxxxx";
     @SuppressWarnings("FieldCanBeLocal")
-    private String apiCallback = "niels/stravacallback";
+    private String apiCallback = "http://localhost";
+    @SuppressWarnings("FieldCanBeLocal")
+    private String apiScope = "view_private,write";
+    private String response_type = "code";
+    private String TAG = "tralala";
     private String authCode;
     private OAuth20Service service;
     private OAuth2AccessToken accessToken;
@@ -53,6 +58,8 @@ public class NxStravaHelper {
     private OAuth20Service createService() {
         return new ServiceBuilder(clientid)
                 .apiSecret(clientSecret)
+                .responseType(response_type)
+                .scope(apiScope)
                 .callback(apiCallback)  //your callback URL to store and handle the authorization code sent by Fitbit
                 .build(StravaOAuth2Api.instance());
     }
@@ -68,7 +75,7 @@ public class NxStravaHelper {
     //You extract the Code from the "code" variable in the returned Uri
     private void setAuthCodeFromIntent(Uri returnUrl) {
         authCode = returnUrl.getQueryParameter("code");
-        System.out.println("Auth Code set to " + authCode);
+        Log.d(TAG, "Auth Code set to " + authCode);
     }
 
     //You get the Token with the Access Code
@@ -76,7 +83,7 @@ public class NxStravaHelper {
         try {
             OAuth20Service serviceCall = getService();
             accessToken = serviceCall.getAccessToken(authCode);
-            System.out.println("Access Token=" + accessToken);
+            Log.d(TAG, "Access Token=" + accessToken);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
